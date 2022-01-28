@@ -194,7 +194,8 @@ router.get('/', async (request, response) => {
             data: err
         });
     }
-
+    //@Desc
+    //Without pagination and sorting
     // let queryList = {};
     // if (request.query.keyword) {
     //     queryList.$or = [
@@ -225,8 +226,6 @@ router.get('/', async (request, response) => {
     //     .catch(error => {
     //         response.status(400).send({ message: error.message || "Error occured while retriving products data" })
     //     });
-
-
 
 });
 
