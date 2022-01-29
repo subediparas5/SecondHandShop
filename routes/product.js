@@ -5,7 +5,6 @@ const Category = require('../models/Category');
 const { productValidation } = require("../validation");
 const verify = require('../verifyToken');
 const mongoose = require('mongoose');
-const query = require('express/lib/middleware/query');
 
 
 
@@ -145,6 +144,7 @@ router.get('/', async (request, response) => {
         });
         queryList.push({
             $project: {
+                '_id': 1,
                 "product_name": 1,
                 'description': 1,
                 'image': 1,
