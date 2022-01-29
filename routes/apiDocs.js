@@ -3,7 +3,7 @@ const router = require('express').Router();
 router.get('/', (request, response) => {
     response.send({
         message: "All endpoints",
-        product: [
+        endpoint_details: [
             {
                 endpoint: "/api/user/register",
                 property: "POST",
