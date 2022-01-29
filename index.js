@@ -10,6 +10,7 @@ const postRoute = require('./routes/posts');
 const authRoute = require('./routes/auth');
 const productRoute = require("./routes/product");
 const categoryRoute = require("./routes/category")
+const docsRoute = require("./routes/apiDocs")
 
 dotenv.config();
 app.use(fileUpload());
@@ -37,6 +38,7 @@ app.use('/api/posts', postRoute);
 app.use('/api/user', authRoute);
 app.use('/api/product', productRoute)
 app.use('/api/category', categoryRoute)
+app.use('/', docsRoute)
 
 app.listen(port, () => {
     console.log(`Server running on ${port}`);
