@@ -1,6 +1,5 @@
 const router = require('express').Router();
 const Product = require('../models/Product');
-const Category = require('../models/Category');
 const { productValidation, productUpdateValidation } = require("../validation");
 const verify = require('../verifyToken');
 const mongoose = require('mongoose');
@@ -12,12 +11,14 @@ router.post('/add', verify, async (request, response) => {
     if (request.files && request.files.image) {
         request.body["image"] = request.files.image
     }
+    //@Desc
     //validating data
     const { error } = productValidation(request.body);
     if (error) return response.status(400).send({
         message: error.details[0].message,
         data: error.details[0]
     });
+    //@Desc
     //check if product is already added on same account
     const productExist = await Product.findOne({ product_name: request.body.product_name, owner_id: request.user._id });
     if (productExist) {
@@ -25,6 +26,7 @@ router.post('/add', verify, async (request, response) => {
             message: 'Product already added from same account.'
         });
     }
+    //@Desc
     //Upload image
     try {
 
@@ -34,6 +36,7 @@ router.post('/add', verify, async (request, response) => {
             var image_path = publicPath + '/uploads/product_images/' + image_file_name;
             await image_file.mv(image_path);
         }
+        //@Desc
         //Create new Product
         const product = new Product({
             product_name: request.body.product_name,
@@ -49,6 +52,9 @@ router.post('/add', verify, async (request, response) => {
         const savedProduct = await product.save();
         // const populatedData = await Product.findById(savedProduct._id).populate('category').populate('owner_id').exec();
         // let populatedData = await savedProduct.populate('category').populate('owner_id').execPopulate();
+
+        //@Desc
+        //all queries to execute within aggregate method
         let queryList = [
             {
                 $lookup: {
@@ -346,6 +352,69 @@ router.put('/:product_id/update', verify, async (request, response) => {
                 data: err
             });
         })
+
+});
+
+router.delete('/:product_id/delete', verify, async (request, response) => {
+
+    if (!mongoose.Types.ObjectId.isValid(request.params.product_id)) {
+        return response.status(400).send({
+            message: "No product found with this id",
+            data: {}
+        });
+    }
+    try {
+        await Product.findOne({ _id: request.params.product_id })
+            .then(async (product) => {
+
+                if (!product) {
+                    return response.status(400).send({
+                        message: "No product found with this id",
+                        data: {}
+                    });
+                }
+                else {
+                    if (product.owner_id != request.user._id) {
+                        return response.status(400).send({
+                            message: "Access Denied",
+                            data: {}
+                        });
+                    }
+                    else {
+                        var image_path = publicPath + '/uploads/product_images/' + product.image;
+                        if (fs.existsSync(image_path)) {
+                            fs.unlinkSync(image_path)
+                        }
+                        await Product.deleteOne({ _id: request.params.product_id })
+                            .then(() => {
+                                response.send({
+                                    message: "Product deleted successfully",
+                                    data: {}
+                                });
+                            })
+                            .catch((err) => {
+                                return response.status(400).send({
+                                    message: err.message || "Error occured",
+                                    data: err
+                                });
+                            })
+                    }
+                }
+            })
+            .catch((err) => {
+                return response.status(400).send({
+                    message: err.message || "Error occured",
+                    data: err
+                });
+            })
+
+    } catch (err) {
+        return response.status(400).send({
+            message: err.message || "Error occured",
+            data: err
+        });
+    }
+
 
 })
 

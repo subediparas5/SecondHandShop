@@ -40,6 +40,11 @@ router.get('/', (request, response) => {
                 description: "Update Product Details.",
             },
             {
+                endpoint: "/api/product/:product_id/delete",
+                property: "Delete",
+                description: "Delete Product Details.",
+            },
+            {
                 endpoint: "/api/category/",
                 property: "POST",
                 description: "Create new category(Admin only feature/Must be loggen in to add).",
