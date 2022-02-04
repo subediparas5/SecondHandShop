@@ -1,11 +1,11 @@
 const router = require('express').Router();
 const Product = require('../models/Product');
-const User = require('../models/User');
 const Category = require('../models/Category');
-const { productValidation } = require("../validation");
+const { productValidation, productUpdateValidation } = require("../validation");
 const verify = require('../verifyToken');
 const mongoose = require('mongoose');
-
+const fs = require('fs');
+const Joi = require('@hapi/joi');
 
 
 router.post('/add', verify, async (request, response) => {
@@ -47,11 +47,64 @@ router.post('/add', verify, async (request, response) => {
             tags: request.body.tags
         });
         const savedProduct = await product.save();
-        const populatedData = await Product.findById(savedProduct._id).populate('category').populate('owner_id').exec();
+        // const populatedData = await Product.findById(savedProduct._id).populate('category').populate('owner_id').exec();
         // let populatedData = await savedProduct.populate('category').populate('owner_id').execPopulate();
+        let queryList = [
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'owner_id',
+                    foreignField: '_id',
+                    as: 'owner'
+                }
+
+            },
+            {
+                $unwind: '$owner'
+            },
+            {
+                $lookup: {
+                    from: 'categories',
+                    localField: 'category',
+                    foreignField: '_id',
+                    as: 'category_details'
+                }
+
+            },
+            {
+                $unwind: '$category_details'
+            },
+            {
+                $match: {
+                    "_id": mongoose.Types.ObjectId(savedProduct._id)
+                }
+            },
+            {
+                $project: {
+                    '_id': 1,
+                    "product_name": 1,
+                    'description': 1,
+                    'image': 1,
+                    'price': 1,
+                    'availability': 1,
+                    'address': 1,
+                    'condition': 1,
+                    'tags': 1,
+                    'createdAt': 1,
+                    'owner.name': 1,
+                    'owner.email': 1,
+                    'owner._id': 1,
+                    'category_details._id': 1,
+                    'category_details.slug': 1,
+                    'category_details.sub_slug': 1,
+                    'category_details.name': 1,
+                }
+            }
+        ];
+        let finalProduct = await Product.aggregate(queryList);
         response.send({
             message: "Product added successfully",
-            product: populatedData
+            product: Product.hydrate(finalProduct[0])
         });
 
     }
@@ -63,6 +116,236 @@ router.post('/add', verify, async (request, response) => {
     }
 
 });
+
+router.get('/:product_id', async (request, response) => {
+    if (!mongoose.Types.ObjectId.isValid(request.params.product_id)) {
+        return response.status(400).send({
+            message: "No product found with this id",
+            data: {}
+        });
+    }
+    try {
+        let queryList = [
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'owner_id',
+                    foreignField: '_id',
+                    as: 'owner'
+                }
+
+            },
+            {
+                $unwind: '$owner'
+            },
+            {
+                $lookup: {
+                    from: 'categories',
+                    localField: 'category',
+                    foreignField: '_id',
+                    as: 'category_details'
+                }
+
+            },
+            {
+                $unwind: '$category_details'
+            },
+            {
+                $match: {
+                    "_id": mongoose.Types.ObjectId(request.params.product_id)
+                }
+            },
+            {
+                $project: {
+                    '_id': 1,
+                    "product_name": 1,
+                    'description': 1,
+                    'image': 1,
+                    'price': 1,
+                    'availability': 1,
+                    'address': 1,
+                    'condition': 1,
+                    'tags': 1,
+                    'createdAt': 1,
+                    'owner.name': 1,
+                    'owner.email': 1,
+                    'owner._id': 1,
+                    'category_details._id': 1,
+                    'category_details.slug': 1,
+                    'category_details.sub_slug': 1,
+                    'category_details.name': 1,
+                }
+            }
+        ];
+        let product = await Product.aggregate(queryList);
+        if (product.length > 0) {
+            return response.send({
+                message: "Data retrived",
+                data: Product.hydrate(product[0])
+            });
+        }
+        else {
+            return response.status(400).send({
+                message: "No Products Found",
+                data: {}
+            });
+        }
+    }
+    catch (err) {
+        return response.status(400).send({
+            message: err.message || "Error occured while retriving product data",
+            data: err
+        });
+    }
+});
+
+
+router.put('/:product_id/update', verify, async (request, response) => {
+
+    if (!mongoose.Types.ObjectId.isValid(request.params.product_id)) {
+        return response.status(400).send({
+            message: "No product found with this id",
+            data: {}
+        });
+    }
+
+    await Product.findOne({ _id: request.params.product_id })
+        .then(async (product) => {
+
+            if (!product) {
+                return response.status(400).send({
+                    message: "No product found with this id",
+                    data: {}
+                });
+            }
+            else {
+                if (product.owner_id != request.user._id) {
+                    return response.status(400).send({
+                        message: "Access Denied",
+                        data: {}
+                    });
+                }
+                else {
+                    try {
+                        if (request.files && request.files.image) {
+                            request.body["image"] = request.files.image
+                            Object.assign({}, productUpdateValidation, ({
+                                image: Joi.any().required()
+                            }));
+                        }
+                        //validating data
+                        const { error } = productUpdateValidation(request.body);
+                        if (error) return response.status(400).send({
+                            message: error.details[0].message,
+                            data: error.details[0]
+                        });
+
+                        if (request.files && request.files.image) {
+                            var image_file = request.files.image;
+                            var image_file_name = Date.now() + '-product-image-' + image_file.name;
+                            var image_path = publicPath + '/uploads/product_images/' + image_file_name;
+                            await image_file.mv(image_path);
+                            //delete old image of product
+                            var old_path = publicPath + '/uploads/product_images/' + product.image;
+                            if (fs.existsSync(old_path)) {
+                                fs.unlinkSync(old_path)
+                            }
+                        }
+                        else {
+                            var image_file_name = product.image
+                        }
+                        const nameDuplicateCheck = await Product.findOne({ product_name: request.body.product_name, owner_id: request.user._id });
+                        if (nameDuplicateCheck) {
+                            return response.status(400).send({
+                                message: 'Product with same name already added from this account.'
+                            });
+                        }
+                        await Product.updateOne({ _id: request.params.product_id }, {
+                            product_name: request.body.product_name,
+                            description: request.body.description,
+                            category: request.body.category,
+                            price: request.body.price,
+                            address: request.body.address,
+                            condition: request.body.condition,
+                            image: image_file_name,
+                            tags: request.body.tags
+                        });
+
+                        let queryList = [
+                            {
+                                $lookup: {
+                                    from: 'users',
+                                    localField: 'owner_id',
+                                    foreignField: '_id',
+                                    as: 'owner'
+                                }
+
+                            },
+                            {
+                                $unwind: '$owner'
+                            },
+                            {
+                                $lookup: {
+                                    from: 'categories',
+                                    localField: 'category',
+                                    foreignField: '_id',
+                                    as: 'category_details'
+                                }
+
+                            },
+                            {
+                                $unwind: '$category_details'
+                            },
+                            {
+                                $match: {
+                                    "_id": mongoose.Types.ObjectId(request.params.product_id)
+                                }
+                            },
+                            {
+                                $project: {
+                                    '_id': 1,
+                                    "product_name": 1,
+                                    'description': 1,
+                                    'image': 1,
+                                    'price': 1,
+                                    'availability': 1,
+                                    'address': 1,
+                                    'condition': 1,
+                                    'tags': 1,
+                                    'createdAt': 1,
+                                    'owner.name': 1,
+                                    'owner.email': 1,
+                                    'owner._id': 1,
+                                    'category_details._id': 1,
+                                    'category_details.slug': 1,
+                                    'category_details.sub_slug': 1,
+                                    'category_details.name': 1,
+                                }
+                            }
+                        ];
+                        let finalProduct = await Product.aggregate(queryList);
+                        response.send({
+                            message: "Product updated successfully",
+                            product: Product.hydrate(finalProduct[0])
+                        });
+
+                    } catch (err) {
+                        return response.status(400).send({
+                            message: err.message || "Error occured while retriving product data",
+                            data: err
+                        });
+                    }
+                }
+            }
+
+        }).catch((err) => {
+            return response.status(400).send({
+                message: err.message || "Error occured",
+                data: err
+            });
+        })
+
+})
 
 
 router.get('/', async (request, response) => {
@@ -156,6 +439,8 @@ router.get('/', async (request, response) => {
                 'createdAt': 1,
                 'owner.name': 1,
                 'owner.email': 1,
+                'owner._id': 1,
+                'category_details._id': 1,
                 'category_details.slug': 1,
                 'category_details.sub_slug': 1,
                 'category_details.name': 1,
