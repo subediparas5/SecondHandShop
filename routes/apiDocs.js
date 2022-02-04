@@ -30,6 +30,16 @@ router.get('/', (request, response) => {
                 description: "Get product data.",
             },
             {
+                endpoint: "/api/product/:product_id",
+                property: "GET",
+                description: "Product Details.",
+            },
+            {
+                endpoint: "/api/product/:product_id/update",
+                property: "PUT",
+                description: "Update Product Details.",
+            },
+            {
                 endpoint: "/api/category/",
                 property: "POST",
                 description: "Create new category(Admin only feature/Must be loggen in to add).",

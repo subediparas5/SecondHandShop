@@ -239,10 +239,10 @@ router.put('/:product_id/update', verify, async (request, response) => {
                             message: error.details[0].message,
                             data: error.details[0]
                         });
-
+                        var image_file_name;
                         if (request.files && request.files.image) {
                             var image_file = request.files.image;
-                            var image_file_name = Date.now() + '-product-image-' + image_file.name;
+                            image_file_name = Date.now() + '-product-image-' + image_file.name;
                             var image_path = publicPath + '/uploads/product_images/' + image_file_name;
                             await image_file.mv(image_path);
                             //delete old image of product
@@ -252,13 +252,15 @@ router.put('/:product_id/update', verify, async (request, response) => {
                             }
                         }
                         else {
-                            var image_file_name = product.image
+                            image_file_name = product.image
                         }
                         const nameDuplicateCheck = await Product.findOne({ product_name: request.body.product_name, owner_id: request.user._id });
                         if (nameDuplicateCheck) {
-                            return response.status(400).send({
-                                message: 'Product with same name already added from this account.'
-                            });
+                            if (nameDuplicateCheck._id != request.params.product_id) {
+                                return response.status(400).send({
+                                    message: 'Product with same name already added from this account.'
+                                });
+                            }
                         }
                         await Product.updateOne({ _id: request.params.product_id }, {
                             product_name: request.body.product_name,
