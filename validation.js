@@ -51,7 +51,24 @@ const productUpdateValidation = (data) => {
     return validationSchema.validate(data);
 }
 
+const productCommentValidation = (data) => {
+    const validationSchema = Joi.object({
+        comment: Joi.string().min(10).max(255).required()
+    })
+    return validationSchema.validate(data);
+
+}
+const commentReplyValidation = (data) => {
+    const validationSchema = Joi.object({
+        reply: Joi.string().min(10).max(255).required()
+    })
+    return validationSchema.validate(data);
+
+}
+
 module.exports.registerValidation = registerValidation;
 module.exports.loginValidation = loginValidation;
 module.exports.productValidation = productValidation;
 module.exports.productUpdateValidation = productUpdateValidation;
+module.exports.productCommentValidation = productCommentValidation;
+module.exports.commentReplyValidation = commentReplyValidation;

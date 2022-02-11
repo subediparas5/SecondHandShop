@@ -546,7 +546,7 @@ router.get('/', async (request, response) => {
             });
     } catch (err) {
         response.status(400).send({
-            message: error.message || "Error occured while retriving products data",
+            message: err.message || "Error occured while retriving products data",
             data: err
         });
     }

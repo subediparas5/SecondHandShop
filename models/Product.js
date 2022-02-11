@@ -47,7 +47,11 @@ const productSchema = new mongoose.Schema({
     },
     tags: {
         type: Array
-    }
+    },
+    comments: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'ProductComment'
+    }]
 }, {
     timestamps: true,
     toObject: {

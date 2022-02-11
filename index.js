@@ -11,6 +11,8 @@ const authRoute = require('./routes/auth');
 const productRoute = require("./routes/product");
 const categoryRoute = require("./routes/category")
 const docsRoute = require("./routes/apiDocs")
+const productCommentRoute = require("./routes/productComment")
+const commentReplyRoute = require("./routes/productCommentReply")
 
 dotenv.config();
 app.use(fileUpload());
@@ -36,9 +38,11 @@ app.use(express.json());
 //@Desc Routes Middleware
 app.use('/api/posts', postRoute);
 app.use('/api/user', authRoute);
-app.use('/api/product', productRoute)
-app.use('/api/category', categoryRoute)
-app.use('/', docsRoute)
+app.use('/api/product', productRoute);
+app.use('/api/category', categoryRoute);
+app.use('/', docsRoute);
+app.use('/api/product', productCommentRoute);
+app.use('/api/comment', commentReplyRoute);
 
 app.listen(port, () => {
     console.log(`Server running on ${port}`);
