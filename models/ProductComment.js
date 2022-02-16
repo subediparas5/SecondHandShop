@@ -19,6 +19,10 @@ const productCommentSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'ProductCommentReply'
     }]
-})
+},
+    {
+        timestamps: true
+    }
+)
 
 module.exports = mongoose.model('ProductComment', productCommentSchema);

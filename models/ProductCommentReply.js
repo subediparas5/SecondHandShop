@@ -15,6 +15,10 @@ const productCommentReplySchema = new mongoose.Schema({
         minlength: 10,
         maxlength: 255
     }
-})
+},
+    {
+        timestamps: true
+    }
+)
 
 module.exports = mongoose.model('ProductCommentReply', productCommentReplySchema);

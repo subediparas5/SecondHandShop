@@ -430,7 +430,6 @@ router.get('/', async (request, response) => {
                     foreignField: '_id',
                     as: 'owner'
                 }
-
             },
             {
                 $unwind: '$owner'
@@ -442,7 +441,6 @@ router.get('/', async (request, response) => {
                     foreignField: '_id',
                     as: 'category_details'
                 }
-
             },
             {
                 $unwind: '$category_details'
@@ -515,6 +513,7 @@ router.get('/', async (request, response) => {
                 'category_details.slug': 1,
                 'category_details.sub_slug': 1,
                 'category_details.name': 1,
+                'comments': -1
             }
         });
 
