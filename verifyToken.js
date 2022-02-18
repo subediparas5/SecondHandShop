@@ -11,7 +11,12 @@ module.exports = function (request, response, next) {
         request.user = verified;
         next();
     } catch (err) {
-        response.status(400).send({
+        if (err.expiredAt && err.expiredAt < new Date()) {
+            return response.status(400).send({
+                message: 'Session Expired. Please log in again.'
+            });
+        }
+        return response.status(400).send({
             message: 'Invalid Token'
         });
     }

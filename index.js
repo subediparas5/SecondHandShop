@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const fileUpload = require('express-fileupload');
 //Routes
-const postRoute = require('./routes/posts');
+const testRoute = require('./routes/test');
 const authRoute = require('./routes/auth');
 const productRoute = require("./routes/product");
 const categoryRoute = require("./routes/category")
@@ -36,7 +36,7 @@ mongoose.connect(process.env.DB_CONNECT)
 app.use(express.json());
 
 //@Desc Routes Middleware
-app.use('/api/posts', postRoute);
+app.use('/api/test', testRoute);
 app.use('/api/user', authRoute);
 app.use('/api/product', productRoute);
 app.use('/api/category', categoryRoute);
