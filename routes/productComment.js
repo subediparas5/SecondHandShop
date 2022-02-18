@@ -4,6 +4,7 @@ const Product = require('../models/Product');
 const ProductComment = require('../models/ProductComment');
 const { productCommentValidation } = require("../validation");
 const mongoose = require('mongoose');
+const ProductCommentReply = require('../models/ProductCommentReply');
 
 router.get('/:product_id/comments', async (request, response) => {
     if (!mongoose.Types.ObjectId.isValid(request.params.product_id)) {
@@ -156,5 +157,104 @@ router.post('/:product_id/comments/add', verify, async (request, response) => {
 
 
 });
+
+
+router.put('/comment/update/:comment_id', verify, async (request, response) => {
+    if (!mongoose.Types.ObjectId.isValid(request.params.comment_id)) {
+        return response.status(400).send({
+            message: "No comment found with this id",
+            data: {}
+        });
+    }
+
+    await ProductComment.findOne({ _id: request.params.comment_id })
+        .then(async (comment) => {
+            if (!comment) {
+                response.send({
+                    message: "No Comment Found",
+                    data: {}
+                });
+            }
+            else {
+                if (comment.user_id != user._id) {
+                    return response.status(400).send({
+                        message: "Access Denied",
+                        data: {}
+                    });
+                }
+                else {
+                    try {
+                        const { error } = productCommentValidation(request.body);
+                        if (error) return response.status(400).send({
+                            message: error.details[0].message,
+                            data: error.details[0]
+                        });
+
+                        await ProductComment.updateOne(
+                            { _id: request.params.comment_id },
+                            { comment: request.body.comment }
+                        );
+
+                    }
+                    catch (err) {
+                        return response.status(400).send({
+                            message: err.message || "Error occured",
+                            data: err
+                        });
+                    }
+                }
+            }
+        })
+})
+
+
+router.delete('/comment/delete/:comment_id', verify, async (request, response) => {
+    if (!mongoose.Types.ObjectId.isValid(request.params.comment_id)) {
+        return response.status(400).send({
+            message: "No comment found with this id",
+            data: {}
+        });
+    }
+    await ProductComment.findOne({ _id: request.params.comment_id })
+        .then(async (comment) => {
+            if (!comment) {
+                response.send({
+                    message: "No Comment Found",
+                    data: {}
+                });
+            }
+            else {
+                if (comment.user_id != request.user._id) {
+                    return response.status(400).send({
+                        message: "Access Denied",
+                        data: {}
+                    });
+                }
+                else {
+                    try {
+                        await ProductComment.deleteOne({ _id: comment._id, user_id: request.user._id })
+                        await ProductCommentReply.deleteMany({ comment_id: comment._id })
+                        response.send({
+                            message: "Comment deleted successfully.",
+                            data: {}
+                        });
+                    }
+                    catch (err) {
+                        return response.status(400).send({
+                            message: err.message || "Error occured",
+                            data: err
+                        });
+                    }
+                }
+            }
+        })
+        .catch((err) => {
+            return response.status(400).send({
+                message: err.message || "Error occured",
+                data: err
+            });
+        })
+
+})
 
 module.exports = router;

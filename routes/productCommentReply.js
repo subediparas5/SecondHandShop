@@ -149,7 +149,7 @@ router.put('/reply/update/:reply_id', verify, async (request, response) => {
                         let updatedReply = await ProductCommentReply.aggregate(queryList);
                         response.send({
                             message: "Reply edited successfully",
-                            comment: ProductCommentReply.hydrate(updatedReply[0])
+                            reply: ProductCommentReply.hydrate(updatedReply[0])
                         });
 
                     }
@@ -161,6 +161,67 @@ router.put('/reply/update/:reply_id', verify, async (request, response) => {
                     }
                 }
             }
+        })
+        .catch((err) => {
+            response.status(400).send({
+                message: err.message || "Error occured while retriving comments data",
+                data: err
+            });
+        })
+})
+
+
+router.delete('/reply/delete/:reply_id', verify, async (request, response) => {
+    if (!mongoose.Types.ObjectId.isValid(request.params.reply_id)) {
+        return response.status(400).send({
+            message: "No reply found with this id",
+            data: {}
+        });
+    }
+    await ProductCommentReply.findOne({ _id: request.params.reply_id })
+        .then(async (reply) => {
+            if (!reply) {
+                response.send({
+                    message: "No Reply Found",
+                    data: {}
+                });
+            }
+            else {
+                if (reply.user_id != request.user._id) {
+                    return response.status(400).send({
+                        message: "Access Denied",
+                        data: {}
+                    });
+                }
+                else {
+                    try {
+                        await ProductCommentReply.deleteOne({ _id: reply._id });
+                        await ProductComment.updateOne(
+                            { _id: reply.comment_id },
+                            {
+                                $pullAll: { 'reply': [request.params.reply_id] }
+                            }
+                        )
+                        response.send({
+                            message: "Reply deleted successfully",
+                            data: {}
+                        });
+                    }
+                    catch (err) {
+                        response.status(400).send({
+                            message: err.message || "Error occured while retriving comments data",
+                            data: err
+                        });
+                    }
+
+                }
+            }
+        })
+        .catch((err) => {
+            response.status(400).send({
+                message: err.message || "Error occured while retriving comments data",
+                data: err
+            });
         })
 })
 
