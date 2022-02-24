@@ -27,6 +27,10 @@ const productSchema = new mongoose.Schema({
         min: 100,
         max: 500000
     },
+    negotiation: {
+        type: Boolean,
+        default:true
+    },
     availability: {
         type: Boolean,
         default: true
@@ -41,9 +45,16 @@ const productSchema = new mongoose.Schema({
         minlength: 5,
         maxlength: 255
     },
+    delivery: {
+        type: String,
+        required:true
+    },
     condition: {
         type: String,
         required: true
+    },
+    usedFor: {
+        type: String,
     },
     tags: {
         type: Array

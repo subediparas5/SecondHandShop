@@ -47,7 +47,10 @@ router.post('/add', verify, async (request, response) => {
             address: request.body.address,
             condition: request.body.condition,
             image: image_file_name,
-            tags: request.body.tags
+            tags: request.body.tags,
+            negotiation: request.body.negotiation,
+            delivery: request.body.delivery,
+            usedFor: request.body.usedFor,
         });
         const savedProduct = await product.save();
         // const populatedData = await Product.findById(savedProduct._id).populate('category').populate('owner_id').exec();
@@ -96,6 +99,9 @@ router.post('/add', verify, async (request, response) => {
                     'address': 1,
                     'condition': 1,
                     'tags': 1,
+                    'negotiation':1,
+                    'usedFor':1,
+                    'delivery':1,
                     'createdAt': 1,
                     'owner.name': 1,
                     'owner.email': 1,
@@ -172,6 +178,9 @@ router.get('/:product_id', async (request, response) => {
                     'address': 1,
                     'condition': 1,
                     'tags': 1,
+                    'negotiation': 1,
+                    'usedFor': 1,
+                    'delivery': 1,
                     'createdAt': 1,
                     'owner.name': 1,
                     'owner.email': 1,
@@ -276,7 +285,10 @@ router.put('/:product_id/update', verify, async (request, response) => {
                             address: request.body.address,
                             condition: request.body.condition,
                             image: image_file_name,
-                            tags: request.body.tags
+                            tags: request.body.tags,
+                            negotiation: request.body.negotiation,
+                            delivery: request.body.delivery,
+                            usedFor: request.body.usedFor,
                         });
 
                         let queryList = [
@@ -320,6 +332,9 @@ router.put('/:product_id/update', verify, async (request, response) => {
                                     'address': 1,
                                     'condition': 1,
                                     'tags': 1,
+                                    "negotiation": 1,
+                                    'delivery': 1,
+                                    'usedFor': 1,
                                     'createdAt': 1,
                                     'owner.name': 1,
                                     'owner.email': 1,
@@ -505,6 +520,9 @@ router.get('/', async (request, response) => {
                 'address': 1,
                 'condition': 1,
                 'tags': 1,
+                "negotiation": 1,
+                'delivery': 1,
+                'usedFor': 1,
                 'createdAt': 1,
                 'owner.name': 1,
                 'owner.email': 1,

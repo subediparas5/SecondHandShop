@@ -31,7 +31,10 @@ const productValidation = (data) => {
         condition: Joi.string().required(),
         image: Joi.any().required(),
         category: Joi.any().required(),
-        tags: Joi.array().items(Joi.string().min(1).required())
+        tags: Joi.array().items(Joi.string().min(1).required()),
+        negotiation: Joi.boolean(),
+        delivery: Joi.string().required(),
+        usedFor: Joi.string()
     });
     return validationSchema.validate(data);
 }
@@ -46,7 +49,10 @@ const productUpdateValidation = (data) => {
         condition: Joi.string(),
         category: Joi.any(),
         image: Joi.any(),
-        tags: Joi.array().items(Joi.string().min(1).required())
+        tags: Joi.array().items(Joi.string().min(1).required()),
+        negotiation: Joi.boolean(),
+        delivery: Joi.string().required(),
+        usedFor: Joi.string()
     });
     return validationSchema.validate(data);
 }
