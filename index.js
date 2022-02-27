@@ -13,6 +13,8 @@ const categoryRoute = require("./routes/category")
 const docsRoute = require("./routes/apiDocs")
 const productCommentRoute = require("./routes/productComment")
 const commentReplyRoute = require("./routes/productCommentReply")
+const featuredProduct = require("./routes/featuredProduct")
+const adminRoute = require("./routes/admin")
 
 dotenv.config();
 app.use(fileUpload());
@@ -43,6 +45,9 @@ app.use('/api/category', categoryRoute);
 app.use('/', docsRoute);
 app.use('/api/product', productCommentRoute);
 app.use('/api/comment', commentReplyRoute);
+app.use('/api/product/feature', featuredProduct);
+app.use('/api/admin', adminRoute);
+app.use('/api/product/feature', adminRoute);
 
 app.listen(port, () => {
     console.log(`Server running on ${port}`);
