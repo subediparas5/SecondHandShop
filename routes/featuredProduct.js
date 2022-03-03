@@ -35,7 +35,7 @@ router.post('/:product_id', verify, async (request, response) => {
                 if (db_date <= Date.now()) {
                     date = new Date()
                     data = await FeaturedProduct.updateOne(
-                        { product_id: product_check.product_id },
+                        { product_id: mongoose.ObjectId(product_check.product_id) },
                         {
                             expiryDate: date.setDate(date.getDate() + 30),
                             featured_by: admin_check.user_id
@@ -46,7 +46,7 @@ router.post('/:product_id', verify, async (request, response) => {
                     //not expired
                     date = new Date(db_date);
                     data = await FeaturedProduct.updateOne(
-                        { product_id: product_check.product_id },
+                        { product_id: mongoose.ObjectId(product_check.product_id) },
                         {
                             expiryDate: date.setDate(date.getDate() + 30),
                             featured_by: admin_check.user_id
