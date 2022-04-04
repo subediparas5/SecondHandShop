@@ -7,16 +7,12 @@ const Product = require('../models/Product');
 
 router.post('/:product_id', verify, async (request, response) => {
     let admin_check = await Admin.findOne({ user_id: request.user._id })
-    //remove admin permission required after payment integration
     if (admin_check) {
         let product_check = await FeaturedProduct.findOne({ product_id: request.params.product_id })
         try {
             let data;
             let date;
             if (product_check) {
-
-                //updated today
-                //replace this with payment receipt id after payment integration
                 const isToday = (someDate) => {
                     const today = new Date()
                     return someDate.getDate() == today.getDate() &&
@@ -29,24 +25,23 @@ router.post('/:product_id', verify, async (request, response) => {
                         data: {}
                     });
                 }
-
-                //expired
                 let db_date = new Date(product_check.expiryDate).getTime()
+                //expired
                 if (db_date <= Date.now()) {
                     date = new Date()
                     data = await FeaturedProduct.updateOne(
-                        { product_id: mongoose.ObjectId(product_check.product_id) },
+                        { product_id:product_check.product_id },
                         {
                             expiryDate: date.setDate(date.getDate() + 30),
                             featured_by: admin_check.user_id
                         }
                     )
                 }
+                //not expired
                 else {
-                    //not expired
                     date = new Date(db_date);
                     data = await FeaturedProduct.updateOne(
-                        { product_id: mongoose.ObjectId(product_check.product_id) },
+                        { product_id: product_check.product_id },
                         {
                             expiryDate: date.setDate(date.getDate() + 30),
                             featured_by: admin_check.user_id
@@ -57,10 +52,9 @@ router.post('/:product_id', verify, async (request, response) => {
             else {
                 let product = await Product.findOne({ _id: request.params.product_id })
                 if (product) {
-                    console.log(product._id);
                     date = new Date();
                     const featuredProduct = new FeaturedProduct({
-                        product_id: mongoose.ObjectId(product._id),
+                        product_id:product._id,
                         expiryDate: date.setDate(date.getDate() + 30),
                         featured_by: admin_check.user_id
                     });
@@ -74,6 +68,8 @@ router.post('/:product_id', verify, async (request, response) => {
                 }
 
             }
+            
+
             return response.send({
                 message: "Product featured successfully",
                 data: data

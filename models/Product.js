@@ -7,6 +7,10 @@ const productSchema = new mongoose.Schema({
         minlength: 3,
         maxlength: 255
     },
+    popularity:{
+        type: Number,
+        default:0
+    },
     description: {
         type: String,
         required: true,

@@ -51,6 +51,7 @@ router.post('/add', verify, async (request, response) => {
             negotiation: request.body.negotiation,
             delivery: request.body.delivery,
             usedFor: request.body.usedFor,
+            popularity:request.body.popularity
         });
         const savedProduct = await product.save();
         // const populatedData = await Product.findById(savedProduct._id).populate('category').populate('owner_id').exec();

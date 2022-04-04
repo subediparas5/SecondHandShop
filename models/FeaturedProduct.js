@@ -1,7 +1,10 @@
 const mongoose = require('mongoose');
 
 const featuredProductSchema = new mongoose.Schema({
-    product_id: String,
+    product_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product'
+    },
     expiryDate: Date,
     featured_by: {
         type: mongoose.Schema.Types.ObjectId,

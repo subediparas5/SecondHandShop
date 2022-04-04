@@ -1,5 +1,4 @@
 const Joi = require('@hapi/joi');
-const { schema } = require('./models/Product');
 
 //Register Validation
 const registerValidation = (data) => {
@@ -25,6 +24,7 @@ const productValidation = (data) => {
     const validationSchema = Joi.object({
         product_name: Joi.string().min(3).max(255).required(),
         description: Joi.string().min(25).max(1024).required(),
+        popularity:Joi.number(),
         price: Joi.number().min(100).max(500000).required(),
         availability: Joi.boolean(),
         address: Joi.string().min(5).max(255).required(),
@@ -43,6 +43,7 @@ const productUpdateValidation = (data) => {
     const validationSchema = Joi.object({
         product_name: Joi.string().min(3).max(255),
         description: Joi.string().min(25).max(1024),
+        popularity:Joi.number(),
         price: Joi.number().min(100).max(500000),
         availability: Joi.boolean(),
         address: Joi.string().min(5).max(255),
