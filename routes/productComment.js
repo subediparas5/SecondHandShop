@@ -132,8 +132,10 @@ router.post('/:product_id/comments/add', verify, async (request, response) => {
                     const savedComment = await productComment.save();
                     await Product.updateOne(
                         { _id: request.params.product_id },
-                        { $push: { comments: savedComment._id } }
+                        { $push: { comments: savedComment._id} }
                     )
+                    await Product.updateOne({ _id: request.params.product_id },
+                        {popularity:product.popularity+30})
 
                     response.send({
                         message: "Comment added successfully.",

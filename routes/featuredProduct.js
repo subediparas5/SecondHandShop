@@ -59,6 +59,9 @@ router.post('/:product_id', verify, async (request, response) => {
                         featured_by: admin_check.user_id
                     });
                     data = await featuredProduct.save();
+
+                    await Product.updateOne({ _id: request.params.product_id },
+                        {popularity:product.popularity+200})
                 }
                 else {
                     return response.send({
