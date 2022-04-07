@@ -15,6 +15,7 @@ const productCommentRoute = require("./routes/productComment")
 const commentReplyRoute = require("./routes/productCommentReply")
 const featuredProduct = require("./routes/featuredProduct")
 const popularProduct = require("./routes/popularProducts")
+const upvoteProduct = require("./routes/upvoteProduct")
 const adminRoute = require("./routes/admin")
 
 dotenv.config();
@@ -48,6 +49,7 @@ app.use('/api/product', productCommentRoute);
 app.use('/api/comment', commentReplyRoute);
 app.use('/api/product/feature', featuredProduct);
 app.use('/api/popularproduct', popularProduct);
+app.use('/api/upvoteproduct', upvoteProduct);
 app.use('/api/admin', adminRoute);
 app.use('/api/product/feature', adminRoute);
 
