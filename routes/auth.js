@@ -23,6 +23,7 @@ router.post('/register', async (request, response) => {
         name: request.body.name,
         email: request.body.email,
         password: hashedPassword,
+        phone:request.body.phone,
     });
     try {
         const savedUser = await user.save();

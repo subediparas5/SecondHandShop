@@ -19,6 +19,12 @@ const userSchema = new mongoose.Schema({
         required: true,
         minlength: 6,
         maxlength: 1024,
+    },
+    phone:{
+        type: Number,
+        required: true,
+        minlength:9,
+        maxlength:10
     }
 }, { timestamps: true });
 

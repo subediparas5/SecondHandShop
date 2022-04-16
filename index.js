@@ -17,6 +17,7 @@ const featuredProduct = require("./routes/featuredProduct")
 const popularProduct = require("./routes/popularProducts")
 const upvoteProduct = require("./routes/upvoteProduct")
 const adminRoute = require("./routes/admin")
+const forgotPasswordRoute = require("./routes/forgotPassword")
 
 dotenv.config();
 app.use(fileUpload());
@@ -52,6 +53,10 @@ app.use('/api/popularproduct', popularProduct);
 app.use('/api/upvoteproduct', upvoteProduct);
 app.use('/api/admin', adminRoute);
 app.use('/api/product/feature', adminRoute);
+
+app.use(express.urlencoded({extended:false}))
+app.set('view engine', "ejs")
+app.use('/password',forgotPasswordRoute);
 
 app.listen(port, () => {
     console.log(`Server running on ${port}`);

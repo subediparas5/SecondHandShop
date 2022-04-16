@@ -6,6 +6,7 @@ const registerValidation = (data) => {
         name: Joi.string().min(6).required(),
         email: Joi.string().min(6).required().email({ minDomainSegments: 2 }),
         password: Joi.string().min(6).required(),
+        phone: Joi.number().min(010000000).max(9999999999).required()
     });
     return validationSchema.validate(data);
 };
