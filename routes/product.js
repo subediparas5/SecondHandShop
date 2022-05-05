@@ -503,16 +503,16 @@ router.get('/', async (request, response) => {
                 },
             })
         }
-        let total = await Product.countDocuments(queryList);
-        let page = (request.query.page) ? parseInt(request.query.page) : 1
-        let perPage = (request.query.perPage) ? parseInt(request.query.perPage) : 10
-        let skip = (page - 1) * perPage;
-        queryList.push({
-            $skip: skip,
-        })
-        queryList.push({
-            $limit: perPage
-        });
+        // let total = await Product.countDocuments(queryList);
+        // let page = (request.query.page) ? parseInt(request.query.page) : 1
+        // let perPage = (request.query.perPage) ? parseInt(request.query.perPage) : 10
+        // let skip = (page - 1) * perPage;
+        // queryList.push({
+        //     $skip: skip,
+        // })
+        // queryList.push({
+        //     $limit: perPage
+        // });
         queryList.push({
             $project: {
                 '_id': 1,
@@ -558,12 +558,12 @@ router.get('/', async (request, response) => {
                 response.send({
                     message: "Data retrived",
                     data: product.map(doc => Product.hydrate(doc)),
-                    meta: {
-                        total: total,
-                        currentPage: page,
-                        perPage: perPage,
-                        totalPages: Math.ceil(total / perPage),
-                    }
+                    // meta: {
+                    //     total: total,
+                    //     currentPage: page,
+                    //     perPage: perPage,
+                    //     totalPages: Math.ceil(total / perPage),
+                    // }
                 })
             });
     } catch (err) {
