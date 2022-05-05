@@ -19,5 +19,15 @@ router.post('/', verify, async (request, response) => {
     }
 });
 
+router.get("/", async(request,response)=>{
+    Category.find()
+    .then(category=>{
+        return response.send({
+                        message: "Data retrived",
+                        data: category
+                    })
+    })
+})
+
 
 module.exports = router;

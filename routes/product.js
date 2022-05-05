@@ -342,11 +342,6 @@ router.put('/:product_id/update', verify, async (request, response) => {
                                     'createdAt': 1,
                                     'owner.name': 1,
                                     'owner.email': 1,
-                                    'owner._id': 1,
-                                    'category_details._id': 1,
-                                    'category_details.slug': 1,
-                                    'category_details.sub_slug': 1,
-                                    'category_details.name': 1,
                                 }
                             }
                         ];
