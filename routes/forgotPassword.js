@@ -22,7 +22,7 @@ router.post('/forgot', async (request, response) => {
         }
 
         const token = jwt.sign(payload, secret, { expiresIn: '1hr' })
-        const link = `http://localhost:3000/password/reset/${user._id}/${token}`
+        const link = `https://second-hand-shop-api.herokuapp.com/password/reset/${user._id}/${token}`
         console.log(link)
         const transporter = nodemailer.createTransport(
             {

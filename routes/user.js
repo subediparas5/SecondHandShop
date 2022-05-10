@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const User = require('../models/User');
 const mongoose = require('mongoose');
+const verify = require('../verifyToken');
 
 router.get('/', async (request, response) => {
     let queryList = []
@@ -20,6 +21,34 @@ router.get('/', async (request, response) => {
                 data: user.map(doc => User.hydrate(doc)),
             })
         })
+})
+
+router.get('/my_profile',verify, async (request, response) => {
+
+    let queryList = [
+        {
+            $project: {
+                '_id': 1,
+                'name': 1,
+                'email': 1,
+                'createdAt': 1,
+                'updatedAt': 1,
+            }
+        },
+        {
+            $match: {
+                "_id": mongoose.Types.ObjectId(request.user._id)
+            }
+        }
+    ];
+    User.aggregate(queryList)
+        .then(user => {
+            response.send({
+                message: "Data retrived",
+                data: user.map(doc => User.hydrate(doc)),
+            })
+        })
+
 })
 
 
@@ -56,6 +85,7 @@ router.get('/:user_id', async (request, response) => {
         })
 
 })
+
 
 
 module.exports = router;
